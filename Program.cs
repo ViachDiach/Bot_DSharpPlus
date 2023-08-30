@@ -53,7 +53,7 @@ namespace MyFirstBot
             //     }
             // };
 
-            Console.WriteLine("Hellow");
+            Console.WriteLine("Hello world");
 
             await discord.ConnectAsync();
             await Task.Delay(-1);
