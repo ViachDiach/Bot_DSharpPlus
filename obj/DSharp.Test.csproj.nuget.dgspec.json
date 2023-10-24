@@ -42,23 +42,39 @@
           "dependencies": {
             "DSharpPlus": {
               "target": "Package",
-              "version": "[4.4.2, )"
+              "version": "[5.0.0-nightly-01848, )"
             },
             "DSharpPlus.CommandsNext": {
               "target": "Package",
-              "version": "[4.4.2, )"
+              "version": "[5.0.0-nightly-01839, )"
             },
             "DSharpPlus.Interactivity": {
               "target": "Package",
-              "version": "[4.4.2, )"
+              "version": "[5.0.0-nightly-01839, )"
+            },
+            "DSharpPlus.Lavalink": {
+              "target": "Package",
+              "version": "[5.0.0-nightly-01848, )"
             },
             "DSharpPlus.SlashCommands": {
               "target": "Package",
-              "version": "[4.4.2, )"
+              "version": "[5.0.0-nightly-01839, )"
+            },
+            "DSharpPlus.VoiceNext": {
+              "target": "Package",
+              "version": "[5.0.0-nightly-01839, )"
             },
             "Deedle": {
               "target": "Package",
               "version": "[3.0.0, )"
+            },
+            "HtmlAgilityPack": {
+              "target": "Package",
+              "version": "[1.11.54, )"
+            },
+            "HtmlAgilityPack.CssSelectors": {
+              "target": "Package",
+              "version": "[1.0.2, )"
             },
             "Newtonsoft.Json": {
               "target": "Package",
@@ -75,6 +91,14 @@
             "System.Data.SQLite": {
               "target": "Package",
               "version": "[1.0.118, )"
+            },
+            "Victoria": {
+              "target": "Package",
+              "version": "[6.0.1026, )"
+            },
+            "YoutubeExplode": {
+              "target": "Package",
+              "version": "[6.3.6, )"
             }
           },
           "imports": [

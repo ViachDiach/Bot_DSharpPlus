@@ -3,6 +3,8 @@ using DSharpPlus.SlashCommands;
 using static DSharpAPP.commands.Program;
 using DSharpAPP.db;
 using Newtonsoft.Json; 
+using DSharpPlus.Lavalink;
+using DSharpPlus.Net;
 
 namespace MyFirstBot
 {
@@ -25,6 +27,22 @@ namespace MyFirstBot
                 Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents
             });
 
+            var endpoint = new ConnectionEndpoint
+            {
+                Hostname = "127.0.0.1", // From your server configuration.
+                Port = 2333 // From your server configuration
+            };
+
+            var lavalinkConfig = new LavalinkConfiguration
+            {
+                Password = "youshallnotpass", // From your server configuration.
+                RestEndpoint = endpoint,
+                SocketEndpoint = endpoint
+            };
+
+            var lavalink = discord.UseLavalink();
+
+
             SQL.init(); // Инициализация подключения к базе данных
 
             var slashCommands = discord.UseSlashCommands(new SlashCommandsConfiguration
@@ -36,24 +54,14 @@ namespace MyFirstBot
             slashCommands.RegisterCommands<ZamatCommands>();
             slashCommands.RegisterCommands<WeatherCommands>();
             slashCommands.RegisterCommands<ListCommands>();
-            // slashCommands.RegisterCommands<PresentsCommands>();
+            slashCommands.RegisterCommands<PresentsCommands>();
             slashCommands.RegisterCommands<StuffyCommands>();
             slashCommands.RegisterCommands<SwapCommands>();
-            
-            discord.GuildAvailable  += async (client, args) =>
-            {
-                foreach (var guild  in client.Guilds.Values)
-                {
-                    var textChannels = guild.Channels.Values.Where(channel => channel.Type == ChannelType.Text);
-
-                    foreach (var channel in textChannels)
-                    {
-                        await  channel.SendMessageAsync("Доброго времени суток");
-                    }
-                }
-            };
-            
+            slashCommands.RegisterCommands<MusicCommands>();
+           
             await discord.ConnectAsync();
+            await lavalink.ConnectAsync(lavalinkConfig); // Make sure this is after Discord.ConnectAsync().
+
             await Task.Delay(-1);
         }
 

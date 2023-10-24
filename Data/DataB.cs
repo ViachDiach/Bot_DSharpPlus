@@ -52,7 +52,9 @@ namespace DSharpAPP.db
                             authorInfo[0]  = (string)reader.GetValue(1);
                             authorInfo[1]  = (string)reader.GetValue(2);
                             authorInfo[2]  = reader.GetValue(3).ToString()!;
-                            authorInfo[3]  = (string)reader.GetValue(4);
+                            var curseValue  = (string)reader.GetValue(4);
+
+                            authorInfo[3] = string.IsNullOrWhiteSpace(curseValue) ? "--" : curseValue;
                         }
                     }   
 

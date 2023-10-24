@@ -38,9 +38,6 @@ namespace DSharpAPP.commands
                 string preyId = MyPrey.Replace("<", "").Replace(">", "").Replace("@", "");
                 string authorId =  ctx.User.Id.ToString();
 
-                Console.WriteLine($"{preyId} = preyId");
-                Console.WriteLine($"{authorId} = authorId");
-
                 var embed = await Swaper(ctx, authorId, preyId);
 
                 await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,

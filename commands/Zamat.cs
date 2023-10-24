@@ -7,6 +7,14 @@ namespace DSharpAPP.commands
 {
     public partial class Program
     {
+        private static async Task<string> ZamatPresent(InteractionContext ctx, string whom)
+        {
+            string answer = "";
+            string author = ctx.User.Username;
+
+            return answer;
+        }
+
         public class ZamatCommands : ApplicationCommandModule
         {
             private static string ListWords(int review)
