@@ -5,6 +5,7 @@ using DSharpAPP.db;
 using Newtonsoft.Json; 
 using DSharpPlus.Lavalink;
 using DSharpPlus.Net;
+// using System.Diagnostics;
 
 namespace MyFirstBot
 {
@@ -20,6 +21,9 @@ namespace MyFirstBot
             var configJson = File.ReadAllText(configPath);
             var config = JsonConvert.DeserializeObject<Config>(configJson);
 
+            // string cmdPath = "D:\\VSC+Net\\LavalinkServer";
+            // string cmdArgument = $"/C java -jar \"D:\\VSC+Net\\LavalinkServer\\Lavalink.jar\"";
+
             var discord = new DiscordClient(new DiscordConfiguration()
             {
                 Token = config.Token, // Используем токен из конфигурации
@@ -27,12 +31,20 @@ namespace MyFirstBot
                 Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents
             });
 
+            // Process process = new Process();
+            // process.StartInfo.FileName = "cmd.exe"; 
+            // process.StartInfo.Arguments = cmdArgument;
+            // process.StartInfo.WorkingDirectory = cmdPath;
+            // process.Start();
+
             var endpoint = new ConnectionEndpoint
             {
                 Hostname = "127.0.0.1", // From your server configuration.
-                Port = 2333 // From your server configuration
+                Port = 80 // From your server configuration
             };
 
+
+            // Password = "secret_password", // From your server configuration.
             var lavalinkConfig = new LavalinkConfiguration
             {
                 Password = "youshallnotpass", // From your server configuration.
@@ -41,7 +53,6 @@ namespace MyFirstBot
             };
 
             var lavalink = discord.UseLavalink();
-
 
             SQL.init(); // Инициализация подключения к базе данных
 
@@ -57,6 +68,7 @@ namespace MyFirstBot
             slashCommands.RegisterCommands<PresentsCommands>();
             slashCommands.RegisterCommands<StuffyCommands>();
             slashCommands.RegisterCommands<SwapCommands>();
+            slashCommands.RegisterCommands<RadioCommands>();
             slashCommands.RegisterCommands<MusicCommands>();
            
             await discord.ConnectAsync();

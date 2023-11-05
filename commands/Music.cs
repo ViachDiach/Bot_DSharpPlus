@@ -2,7 +2,6 @@ using DSharpPlus;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using DSharpPlus.VoiceNext;
 using DSharpPlus.Lavalink;
 using YoutubeExplode;
 
@@ -16,14 +15,13 @@ namespace DSharpAPP.commands
         public class MusicCommands : ApplicationCommandModule
         {
             [SlashCommand("join", "Подключить бота к голосовому каналу")]
-            public async Task Join(InteractionContext ctx)
+            public async Task JoinToVC(InteractionContext ctx)
             {
                 var lava = ctx.Client.GetLavalink();
                 if (!lava.ConnectedNodes.Any())
                 {
                     await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                              new DiscordInteractionResponseBuilder().WithContent("Соединение Lavalink не установлено"));
-                    return;
                 }
 
                 var node = lava.ConnectedNodes.Values.First();
@@ -34,7 +32,6 @@ namespace DSharpAPP.commands
                 {
                     await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                              new DiscordInteractionResponseBuilder().WithContent("Недопустимый голосовой канал"));
-                    return;
                 }
 
                 await node.ConnectAsync(channel);
@@ -43,27 +40,27 @@ namespace DSharpAPP.commands
             }
 
             [SlashCommand("play", "Запустить проигрыватель")]
-            public async Task TestPlayMusic(InteractionContext ctx, 
+            public async Task PlayMusic(InteractionContext ctx, 
             [Option("link", "Ссылка на источник")] 
             [RemainingText] string link = "default")
             {
                 try
                 {
-                    if (link == "default")
+                    if (link == "default" && PlayList.Count == 0)
                     {
                         await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                             new DiscordInteractionResponseBuilder().WithContent("Укажите ссылку на источник"));
-                        return;
                     }
-
-                    Console.WriteLine($"ССЫЛКА ПОЛУЧИНА");
+                    else if(link == "default" && PlayList.Count > 0)
+                    {
+                        LavaLinkPlaySound(ctx);
+                    }
                     
                     var youtubeClient = new YoutubeClient();
                     var response = await GetVideoTitle(ctx, youtubeClient, link);
 
                     if (response != null)
                     {
-                        Console.WriteLine($"ПАРСИНГ ПОЛУЧИЛИ");
                         var embed = CreateEmbed(response);
 
                         await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
@@ -76,32 +73,63 @@ namespace DSharpAPP.commands
                 }
             }
 
-            [SlashCommand("stop", "Остановить музыку и удалить очередь")]
-            public async Task StopMusic(InteractionContext ctx)
+            [SlashCommand("leave", "Выгнать бота из голосового канала")]
+            public async Task Leave(InteractionContext ctx)
             {
-                string answer = "Бот не находится в голосовом канале";
-                var vnext = ctx.Client.GetVoiceNext();
-                var connection = vnext.GetConnection(ctx.Guild);
-
-                if(connection != null)
+                var lava = ctx.Client.GetLavalink();
+                if (!lava.ConnectedNodes.Any())
                 {
-                    PlayList.Clear();
-                    answer = "Проигрыватель выключен, очередь очищена";
-                    connection.Disconnect();
+                    await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                             new DiscordInteractionResponseBuilder().WithContent("Соединение Lavalink не установлено"));
                 }
 
-                var embed = CreateEmbed(answer);
+                var node = lava.ConnectedNodes.Values.First();
+                var voiceState = ctx.Member?.VoiceState;
+                var channel = voiceState.Channel;
 
+                if(channel.Type != ChannelType.Voice)
+                {
                     await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                            new DiscordInteractionResponseBuilder()
-                                .AddEmbed(embed));
+                             new DiscordInteractionResponseBuilder().WithContent("Недопустимый голосовой канал"));
+                }
+
+                var conn = node.GetGuildConnection(channel.Guild);
+                if(conn == null)
+                {
+                    await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                            new DiscordInteractionResponseBuilder().WithContent("Бот не находится в голосовом канале"));
+                }
+
+                await conn.DisconnectAsync();
+                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                            new DiscordInteractionResponseBuilder().WithContent($"Бот покинул {channel.Name}"));
             }
 
+            [SlashCommand("pause", "Приостановить проигрыватель")]
+            public async Task Pause(InteractionContext ctx)
+            {
+                if(ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
+                {
+                    await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                            new DiscordInteractionResponseBuilder().WithContent("Вы не на голосовом канале"));
+                }
+
+                var lava = ctx.Client.GetLavalink();
+                var node = lava.ConnectedNodes.Values.First();
+                var conn = node.GetGuildConnection(ctx.Member.VoiceState.Guild);
+
+                if(conn == null)
+                {
+                    await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                            new DiscordInteractionResponseBuilder().WithContent("Бот не находится в голосовом канале"));
+                }
+                await conn.PauseAsync();
+            }
 
             [SlashCommand("queue", "Очередь композиций")]
             public async Task ViewQueue(InteractionContext ctx)
             {
-                string answer = ""; 
+                string answer = "На очереди \n\n"; 
                 int trackNumber = 1;
 
                 if(PlayList.Count > 0)
@@ -122,8 +150,7 @@ namespace DSharpAPP.commands
                 await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                             new DiscordInteractionResponseBuilder()
                                 .AddEmbed(embed));
-            }
-
+            }      
 
             private DiscordEmbed CreateEmbed(string answer)
             {
@@ -132,7 +159,7 @@ namespace DSharpAPP.commands
                     .WithDescription($"{answer}");
             }
 
-            private async Task<string> GetVideoTitle(InteractionContext ctx, YoutubeClient youtubeClient, string link)
+            public async Task<string> GetVideoTitle(InteractionContext ctx, YoutubeClient youtubeClient, string link)
             {
                 try
                 {
@@ -157,12 +184,9 @@ namespace DSharpAPP.commands
                     // Если сейчас не играет ничего, вызываем метод PlaySound
                     if (conn.CurrentState.CurrentTrack == null)
                     {   
-                        Console.WriteLine($"ОТПАРВЛЯЕМ НА ЗАПУСК");
-                        await PlaySound(ctx);
                         return $"**Трек** __{author} - {title}__. \n**Длина**: __{totalMinutes}:{remainingSeconds:D2}__ \nзапустил";
                     }
 
-                    Console.WriteLine($"ДОБАВЛЯЕМ В ОЧЕРЕДЬ");
                     return $"**Трек** __{author} - {title}__ добавлен в очередь";
                 }
                 catch (Exception)
@@ -171,20 +195,33 @@ namespace DSharpAPP.commands
                 }
             }
 
-
-            public async Task PlaySound(InteractionContext ctx)
+            public async Task LavaLinkPlaySound(InteractionContext ctx)
             {
                 var lava = ctx.Client.GetLavalink();
                 var nodes = lava.ConnectedNodes;
                 var node = nodes.Values.First();
                 var conn = node.GetGuildConnection(ctx.Member.VoiceState.Guild);
 
-                while (PlayList.Count > 0)
+                conn.PlaybackFinished += async (sender, args) =>
                 {
-                    Console.WriteLine($"НАЧАЛИ ИГРАТЬ");
-                    var nextTrack = PlayList.Dequeue();
-                    Console.WriteLine($"На очереди {nextTrack}");
+                    // Песня завершилась, переключаемся на следующий трек, если он есть в очереди
+                    if (PlayList.Count > 0)
+                    {
+                        var nextTrack = PlayList.Dequeue();
+                        var loadResult = await node.Rest.GetTracksAsync(nextTrack.Value);
 
+                        if (loadResult.Tracks.Any())
+                        {
+                            var track = loadResult.Tracks.First();
+                            await conn.PlayAsync(track);
+                        }
+                    }
+                };
+
+                // Воспроизводим первый трек
+                if (PlayList.Count > 0)
+                {
+                    var nextTrack = PlayList.Dequeue();
                     var loadResult = await node.Rest.GetTracksAsync(nextTrack.Value);
 
                     if (loadResult.Tracks.Any())
@@ -192,8 +229,6 @@ namespace DSharpAPP.commands
                         var track = loadResult.Tracks.First();
                         await conn.PlayAsync(track);
                     }
-
-                    await Task.Delay(000); // Добавьте задержку в 2 секунды перед следующим треком
                 }
             }
         }
