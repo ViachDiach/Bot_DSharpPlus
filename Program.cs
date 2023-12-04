@@ -7,6 +7,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.Lavalink;
 using DSharpPlus.Net;
 using DSharpPlus.EventArgs;
+using DSharpAPP.commands;
 
 namespace MyFirstBot
 {
@@ -75,7 +76,7 @@ namespace MyFirstBot
             await discord.ConnectAsync();
             await lavalink.ConnectAsync(lavalinkConfig); // Make sure this is after Discord.ConnectAsync().
 
-            await DSharpAPP.commands.CheckConnection.SendReport(discord);
+            // await DSharpAPP.commands.CheckConnection.SendReport(discord);
             // await DSharpAPP.commands.CheckConnection.CreateAnswer(discord);
 
             await Task.Delay(-1);
@@ -100,11 +101,10 @@ namespace MyFirstBot
 
             if (voiceState.Channel != null)
             {
-                Console.WriteLine($"{member.DisplayName} AND {member.Id} has joined voice channel {voiceState.Channel.Name}");
-            }
-            else
-            {
-                Console.WriteLine($"{member.DisplayName} AND  has left voice channel at");
+                string dbUserId = member.DisplayName.ToString();
+                string dbGuildId =  voiceState.Guild.Id.ToString();
+
+                SQL.UodateConnectInfo(dbUserId, dbGuildId);
             }
         }
 

@@ -2,6 +2,8 @@ using DSharpPlus;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.Entities;
 using DSharpAPP.db;
+using DSharpPlus.Interactivity.Extensions;
+using System.Text;
 
 namespace DSharpAPP.commands
 {

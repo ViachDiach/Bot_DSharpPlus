@@ -28,11 +28,12 @@ namespace DSharpAPP.db
             var reader = command.ExecuteReader();
 
             if (reader.HasRows)  
-                    {while (reader.Read())   
-                        {
-                            authorProcent = reader.GetInt32(0);
-                        }
-                    }
+            {
+                while (reader.Read())   
+                {
+                    authorProcent = reader.GetInt32(0);
+                }
+            }
 
             reader.Close(); 
             return authorProcent;
@@ -47,16 +48,17 @@ namespace DSharpAPP.db
             var reader = command.ExecuteReader();
 
             if (reader.HasRows)     // если есть данные
-                    {while (reader.Read())   // построчно считываем данные
-                        {
-                            authorInfo[0]  = (string)reader.GetValue(1);
-                            authorInfo[1]  = (string)reader.GetValue(2);
-                            authorInfo[2]  = reader.GetValue(3).ToString()!;
-                            var curseValue  = (string)reader.GetValue(4);
+            {
+                while (reader.Read())   // построчно считываем данные
+                {
+                    authorInfo[0]  = (string)reader.GetValue(1);
+                    authorInfo[1]  = (string)reader.GetValue(2);
+                    authorInfo[2]  = reader.GetValue(3).ToString()!;
+                    var curseValue  = (string)reader.GetValue(4);
 
-                            authorInfo[3] = string.IsNullOrWhiteSpace(curseValue) ? "--" : curseValue;
-                        }
-                    }   
+                    authorInfo[3] = string.IsNullOrWhiteSpace(curseValue) ? "--" : curseValue;
+                }
+            }   
 
             reader.Close();  // Закрываем ридер
             return authorInfo;
@@ -71,14 +73,15 @@ namespace DSharpAPP.db
             var reader = command.ExecuteReader();
 
             if (reader.HasRows) 
-                    {while (reader.Read())   
-                        {
-                            preyerInfo[0]  = (string)reader.GetValue(1);
-                            preyerInfo[1]  = (string)reader.GetValue(2);
-                            preyerInfo[2]  = reader.GetValue(3).ToString()!;
-                            preyerInfo[3]  = (string)reader.GetValue(4);
-                        }
-                    }   
+            {
+                while (reader.Read())   
+                {
+                    preyerInfo[0]  = (string)reader.GetValue(1);
+                    preyerInfo[1]  = (string)reader.GetValue(2);
+                    preyerInfo[2]  = reader.GetValue(3).ToString()!;
+                    preyerInfo[3]  = (string)reader.GetValue(4);
+                }
+            }   
 
             reader.Close(); 
             return preyerInfo;
@@ -93,20 +96,20 @@ namespace DSharpAPP.db
             var reader = command.ExecuteReader();
        
             if (reader.HasRows) 
-                    {
-                        while (reader.Read())    
-                        {
-                            var author  = reader.GetValue(1).ToString()!;
-                            var authorid  = reader.GetValue(2).ToString()!;
-                            var procent  = reader.GetValue(3).ToString()!;
-                            var curseValue  = reader.GetValue(4).ToString()!;
-                            
-                            var curse = string.IsNullOrWhiteSpace(curseValue) ? "--" : curseValue;
+            {
+                while (reader.Read())    
+                {
+                    var author  = reader.GetValue(1).ToString()!;
+                    var authorid  = reader.GetValue(2).ToString()!;
+                    var procent  = reader.GetValue(3).ToString()!;
+                    var curseValue  = reader.GetValue(4).ToString()!;
+                    
+                    var curse = string.IsNullOrWhiteSpace(curseValue) ? "--" : curseValue;
 
-                            string[] infoArray = new string[] {author, procent, curse};
-                            allInfo.Add(infoArray);
-                        }
-                    }
+                    string[] infoArray = new string[] {author, procent, curse};
+                    allInfo.Add(infoArray);
+                }
+            }
                     
             reader.Close(); 
             return allInfo;    
@@ -139,14 +142,14 @@ namespace DSharpAPP.db
             var reader = command.ExecuteReader();
        
             if (reader.HasRows) 
-                    {
-                        while (reader.Read())    
-                        {
-                            var  currencyValue  = reader.GetValue(2).ToString()!;
+            {
+                while (reader.Read())    
+                {
+                    var  currencyValue  = reader.GetValue(2).ToString()!;
 
-                            allInfo.Add(currencyValue);
-                        }
-                    }
+                    allInfo.Add(currencyValue);
+                }
+            }
 
             reader.Close(); 
             return allInfo;    
@@ -192,16 +195,16 @@ namespace DSharpAPP.db
             var reader = command.ExecuteReader();
             
             if (reader.HasRows) 
-                    {
-                        while (reader.Read())    
-                        {
-                            var balanse = reader.GetValue(0).ToString()!;
-                            var inventory = reader.GetValue(1).ToString()!.Replace("_", "\n");
+            {
+                while (reader.Read())    
+                {
+                    var balanse = reader.GetValue(0).ToString()!;
+                    var inventory = reader.GetValue(1).ToString()!.Replace("_", "\n");
 
-                            MyBalanse[0] = balanse;
-                            MyBalanse[1] = inventory;
-                        }
-                    }
+                    MyBalanse[0] = balanse;
+                    MyBalanse[1] = inventory;
+                }
+            }
             
             reader.Close();
             return MyBalanse;
@@ -216,21 +219,70 @@ namespace DSharpAPP.db
             var reader = command.ExecuteReader();
             
             if (reader.HasRows) 
-                    {
-                        while (reader.Read())    
-                        {
-                            var product = reader.GetValue(1).ToString()!;
-                            var price = reader.GetValue(2).ToString()!;
-                            var url = reader.GetValue(3).ToString()!;
+            {
+                while (reader.Read())    
+                {
+                    var product = reader.GetValue(1).ToString()!;
+                    var price = reader.GetValue(2).ToString()!;
+                    var url = reader.GetValue(3).ToString()!;
 
-                            priceList[0] = product;
-                            priceList[1] = price;
-                            priceList[2] = url;
-                        }
-                    }
+                    priceList[0] = product;
+                    priceList[1] = price;
+                    priceList[2] = url;
+                }
+            }
             
             reader.Close();
             return priceList;
+        }
+
+        public static void AddConnectInfo(string userId, string guildId)
+        {
+            var command = _connection.CreateCommand();
+            command.CommandText = $"INSERT INTO connection_info(user_id, guild_id, conn_data) VALUES('{userId}', '{guildId}', strftime('%d-%m-%Y', 'now'))";
+            var reader = command.ExecuteReader();
+            reader.Close();
+        }
+
+        public static void UodateConnectInfo(string userId, string guildId)
+        {
+            var command = _connection.CreateCommand();
+            
+            command.Parameters.AddWithValue("@userId", userId);
+            command.Parameters.AddWithValue("@guildId", guildId);
+
+            command.CommandText = "UPDATE connection_info SET conn_data = strftime('%d-%m-%Y', 'now') WHERE user_id = @userId AND guild_id = @guildId";
+
+            var reader = command.ExecuteReader();
+            reader.Close();
+        }
+
+        public static List<string[]>  GetConnectInfo(string guildId)
+        {
+            var command = _connection.CreateCommand();
+
+            List<string[]> connect_info = new List<string[]>();
+
+            command.CommandText = $"SELECT user_id, conn_data FROM connection_info WHERE guild_id = '{guildId}'";
+            var reader = command.ExecuteReader();
+
+            if(reader.HasRows)
+            {
+                while(reader.Read())
+                {
+                    int userIdOrdinal = reader.GetOrdinal("user_id");
+                    int connDataOrdinal = reader.GetOrdinal("conn_data");
+
+                    string userId = reader.GetString(userIdOrdinal);
+                    string dateString = reader.GetString(connDataOrdinal);
+
+                    string[] currencyValue = { userId, dateString };
+                    connect_info.Add(currencyValue);
+                }
+            }
+
+            reader.Close();
+            return connect_info;
         }
     }
 }
